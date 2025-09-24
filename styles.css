@@ -757,63 +757,51 @@ body::before {
 }
 
 @media (max-width: 768px) {
-    .control-panel {
-        flex-direction: column;
-        align-items: center;
-        top: 50%;
-        padding: 15px;
-    }
-
-    .control-panel button {
-        min-width: 160px;
-        margin-bottom: 8px;
-        padding: 14px 24px;
-    }
-
-    .shot-button-container {
-        bottom: 20px;
-    }
-
-    .shot-button {
-        min-width: 160px;
-        padding: 16px 28px;
-        font-size: 1.1rem;
-    }
-
     .player-panel {
         flex-direction: column;
         align-items: center;
         margin: 10px;
-        padding: 20px;
+        padding: 15px;
     }
 
     .player-stats {
         text-align: center;
         max-width: 100%;
         width: 100%;
-        margin-top: 20px;
+        margin-top: 15px;
     }
 
-    .player-shot-history {
-        width: 100%;
+    /* 移动设备控制面板优化 */
+    .control-panel {
+        position: fixed;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: var(--border-radius);
+        width: 95%;
+        padding: 10px;
+        gap: 8px;
+        z-index: 100;
     }
 
-    .ball-buttons,
-    .foul-buttons {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
+    .control-panel button {
+        padding: 10px;
+        font-size: 0.9rem;
+        flex: 0 0 calc(33.33% - 8px);
+        min-width: auto;
+        margin: 0;
     }
 
-    .remaining-time {
-        font-size: 1.6rem;
-    }
-
-    .player-name {
-        font-size: 1.5rem;
-    }
-
-    .player-score {
-        font-size: 3rem;
+    /* 调整球员区域占比 */
+    #playerA,
+    #playerB {
+        height: 45vh;
+        overflow-y: auto;
+        margin: 5px;
     }
 }
 
@@ -823,84 +811,168 @@ body::before {
     }
 
     .player-name {
-        font-size: 1.3rem;
+        font-size: 1.1rem;
+        margin-bottom: 5px;
     }
 
     .player-score {
-        font-size: 2.5rem;
+        font-size: 2rem;
     }
 
-    .remaining-time {
-        font-size: 1.4rem;
-    }
-
-    .control-panel button {
-        padding: 12px 20px;
-        font-size: 1rem;
-        min-width: 140px;
+    .player-info {
+        min-width: auto;
+        width: 100%;
     }
 
     .shot-button {
-        min-width: 140px;
-        padding: 14px 24px;
+        width: 100%;
+        padding: 10px;
         font-size: 1rem;
+        margin-top: 5px;
     }
 
+    .remaining-time {
+        font-size: 1.2rem;
+    }
+
+    .hit-rate,
+    .avg-shot-time,
+    .break-score {
+        font-size: 0.9rem;
+    }
+
+    /* 调整控制面板 */
+    .control-panel {
+        padding: 8px;
+        gap: 4px;
+    }
+
+    .control-panel button {
+        padding: 8px 5px;
+        font-size: 0.75rem;
+        border-radius: 6px;
+    }
+
+    /* 减小记录区域高度 */
+    .player-shot-history {
+        max-height: 100px;
+        padding: 8px;
+    }
+
+    /* 模态框优化 */
     .modal-content {
-        padding: 25px;
-        margin: 10px;
+        padding: 15px;
+        max-width: 95%;
+    }
+
+    .ball-buttons,
+    .foul-buttons {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .ball-button,
+    .foul-button {
+        padding: 12px 8px;
+        font-size: 0.9rem;
+    }
+}
+
+/* 超小屏幕设备优化 (iPhone SE 等) */
+@media (max-width: 375px) {
+    .control-panel {
+        width: 98%;
+        padding: 5px;
+        bottom: 5px;
+    }
+
+    .control-panel button {
+        flex: 0 0 calc(50% - 4px);
+        padding: 6px 4px;
+        font-size: 0.7rem;
+        margin-bottom: 4px;
+    }
+
+    #playerA,
+    #playerB {
+        padding: 10px;
+        margin: 3px;
+    }
+
+    .player-shot-history {
+        max-height: 80px;
     }
 
     .ball-buttons,
     .foul-buttons {
         grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .ball-button,
-    .foul-button {
-        padding: 15px;
-        font-size: 1rem;
     }
 }
 
-/* 动画增强 */
-@keyframes slideInFromBottom {
-    0% {
-        transform: translateY(100%);
-        opacity: 0;
+/* 竖屏方向特定优化 */
+@media (orientation: portrait) {
+
+    #playerA,
+    #playerB {
+        height: auto;
+        min-height: 40vh;
     }
 
-    100% {
-        transform: translateY(0);
-        opacity: 1;
+    .player-panel {
+        padding: 12px;
+    }
+
+    /* 确保底部有足够空间，不被控制面板遮挡 */
+    #app {
+        padding-bottom: 70px;
+    }
+
+    /* 视图视口高度调整 */
+    .view {
+        height: calc(100% - 60px);
+        overflow-y: auto;
     }
 }
 
-@keyframes fadeInScale {
-    0% {
-        transform: scale(0.8);
-        opacity: 0;
+/* 横屏方向特定优化 */
+@media (orientation: landscape) and (max-height: 500px) {
+    .player-panel {
+        flex-direction: row;
+        height: auto;
+        margin: 5px;
+        padding: 10px;
     }
 
-    100% {
-        transform: scale(1);
-        opacity: 1;
+    #playerA,
+    #playerB {
+        height: auto;
+        min-height: 35vh;
+        overflow-y: auto;
+    }
+
+    .player-shot-history {
+        max-height: 80px;
+    }
+
+    .control-panel {
+        bottom: 5px;
     }
 }
 
-.control-panel {
-    animation: slideInFromBottom 0.6s ease-out;
-}
+/* 触摸设备交互优化 */
+@media (pointer: coarse) {
+    button {
+        min-height: 44px;
+        /* 确保可触摸区域足够大 */
+    }
 
-.shot-button-container {
-    animation: slideInFromBottom 0.6s ease-out 0.2s both;
-}
+    .player-shot-history {
+        -webkit-overflow-scrolling: touch;
+        /* 平滑滚动 */
+    }
 
-.player-panel {
-    animation: fadeInScale 0.5s ease-out;
-}
-
-.player-panel:nth-child(2) {
-    animation-delay: 0.1s;
+    input {
+        font-size: 16px;
+        /* 防止iOS自动缩放 */
+    }
 }
