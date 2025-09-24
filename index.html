@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>斯诺克比赛记录</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- 比赛主视图 -->
+        <div id="matchView" class="view active">
+            <!-- 球员A面板 -->
+            <div id="playerA" class="player-panel">
+                <div class="player-info">
+                    <h2 class="player-name">球员A</h2>
+                    <div class="player-score">0</div>
+                    <button id="shotButtonA" class="shot-button">出杆</button>
+                </div>
+                <div class="player-stats">
+                    <div class="remaining-time">20:00</div>
+                    <div class="hit-rate">命中率: 0%</div>
+                    <div class="avg-shot-time">平均用时: 0秒</div>
+                    <div class="break-score">单杆: 0</div>
+                    <div class="player-shot-history">
+                        <h4>击球记录</h4>
+                        <div class="shot-history-item">暂无击球记录</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 控制面板 -->
+            <div class="control-panel">
+                <button id="potButton" class="pot-button" disabled>进球</button>
+                <button id="undoButton" class="undo-button">撤回</button>
+                <button id="endMatchButton" class="end-match-button">结束比赛</button>
+                <button id="historyButton" class="history-button">历史记录</button>
+                <button id="menuButton" class="menu-button">菜单</button>
+            </div>
+
+            <!-- 球员B面板 -->
+            <div id="playerB" class="player-panel">
+                <div class="player-info">
+                    <h2 class="player-name">球员B</h2>
+                    <div class="player-score">0</div>
+                    <button id="shotButtonB" class="shot-button">出杆</button>
+                </div>
+                <div class="player-stats">
+                    <div class="remaining-time">20:00</div>
+                    <div class="hit-rate">命中率: 0%</div>
+                    <div class="avg-shot-time">平均用时: 0秒</div>
+                    <div class="break-score">单杆: 0</div>
+                    <div class="player-shot-history">
+                        <h4>击球记录</h4>
+                        <div class="shot-history-item">暂无击球记录</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 历史记录列表视图 -->
+        <div id="historyListView" class="view">
+            <div class="view-header">
+                <button class="back-button">返回</button>
+                <h2>历史比赛</h2>
+            </div>
+            <div id="historyList" class="history-list">
+                <!-- 动态生成历史记录 -->
+            </div>
+        </div>
+
+        <!-- 比赛详情视图 -->
+        <div id="matchDetailView" class="view">
+            <div class="view-header">
+                <button class="back-button">返回</button>
+                <h2>比赛详情</h2>
+            </div>
+            <div id="matchDetail" class="match-detail">
+                <!-- 动态生成比赛详情 -->
+            </div>
+        </div>
+
+        <!-- 设置视图 -->
+        <div id="settingsView" class="view">
+            <div class="view-header">
+                <button class="back-button">返回</button>
+                <h2>设置</h2>
+            </div>
+            <div class="settings-content">
+                <div class="setting-item">
+                    <label for="playerAName">球员A姓名:</label>
+                    <input type="text" id="playerAName" value="球员A">
+                </div>
+                <div class="setting-item">
+                    <label for="playerBName">球员B姓名:</label>
+                    <input type="text" id="playerBName" value="球员B">
+                </div>
+                <div class="setting-item">
+                    <label for="totalTime">每人总时长(分钟):</label>
+                    <input type="number" id="totalTime" value="20" min="1" max="60">
+                </div>
+                <button id="newMatchButton" class="new-match-button">开始新比赛</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 选球模态框 -->
+    <div id="ballSelectionModal" class="modal">
+        <div class="modal-content">
+            <h3>选择进球</h3>
+            <div class="ball-buttons">
+                <button class="ball-button red" data-ball="Red" data-points="1">红球 (1分)</button>
+                <button class="ball-button yellow" data-ball="Yellow" data-points="2">黄球 (2分)</button>
+                <button class="ball-button green" data-ball="Green" data-points="3">绿球 (3分)</button>
+                <button class="ball-button brown" data-ball="Brown" data-points="4">咖啡球 (4分)</button>
+                <button class="ball-button blue" data-ball="Blue" data-points="5">蓝球 (5分)</button>
+                <button class="ball-button pink" data-ball="Pink" data-points="6">粉球 (6分)</button>
+                <button class="ball-button black" data-ball="Black" data-points="7">黑球 (7分)</button>
+                <button class="ball-button foul" data-ball="Foul">犯规</button>
+            </div>
+            <button class="close-modal">取消</button>
+        </div>
+    </div>
+
+    <!-- 犯规分值选择模态框 -->
+    <div id="foulPointsModal" class="modal">
+        <div class="modal-content">
+            <h3>选择犯规分值</h3>
+            <div class="foul-buttons">
+                <button class="foul-button" data-points="4">4分</button>
+                <button class="foul-button" data-points="5">5分</button>
+                <button class="foul-button" data-points="6">6分</button>
+                <button class="foul-button" data-points="7">7分</button>
+            </div>
+            <button class="close-modal">取消</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

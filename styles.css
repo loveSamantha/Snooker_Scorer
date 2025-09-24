@@ -1,0 +1,906 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-bg: linear-gradient(135deg, #0f4f2f 0%, #1a7a4a 50%, #0c5f0c 100%);
+    --secondary-bg: rgba(255, 255, 255, 0.08);
+    --glass-bg: rgba(255, 255, 255, 0.12);
+    --glass-border: rgba(255, 255, 255, 0.18);
+    --accent-gold: #ffd700;
+    --accent-gold-dark: #e6c200;
+    --text-primary: #ffffff;
+    --text-secondary: #e0e0e0;
+    --text-muted: #b0b0b0;
+    --danger: #ff5722;
+    --success: #4caf50;
+    --info: #2196f3;
+    --warning: #ff9800;
+    --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --shadow-strong: 0 12px 48px rgba(0, 0, 0, 0.4);
+    --border-radius: 16px;
+    --border-radius-small: 8px;
+}
+
+body {
+    font-family: 'Inter', 'Arial', sans-serif;
+    background: var(--primary-bg);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(circle at 20% 30%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(76, 175, 80, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+#app {
+    height: 100vh;
+    position: relative;
+}
+
+.view {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.view.active {
+    display: flex;
+    opacity: 1;
+}
+
+/* 比赛主视图样式 */
+#matchView {
+    display: flex;
+    flex-direction: column;
+}
+
+.player-panel {
+    flex: 1;
+    padding: 30px;
+    border: 2px solid transparent;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    margin: 15px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    position: relative;
+    overflow: hidden;
+}
+
+.player-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.player-panel.active {
+    border-color: var(--accent-gold);
+    background: rgba(255, 215, 0, 0.15);
+    box-shadow:
+        var(--shadow-strong),
+        0 0 30px rgba(255, 215, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: scale(1.02);
+}
+
+.player-panel.active::before {
+    opacity: 1;
+}
+
+.player-panel.shooting {
+    border-color: var(--danger);
+    background: rgba(255, 87, 34, 0.15);
+    box-shadow:
+        var(--shadow-strong),
+        0 0 30px rgba(255, 87, 34, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: scale(1.02);
+}
+
+.player-panel.shooting::before {
+    background: linear-gradient(90deg, transparent, var(--danger), transparent);
+    opacity: 1;
+}
+
+#playerA {
+    margin-bottom: 8px;
+}
+
+#playerB {
+    margin-top: 8px;
+    flex-direction: row-reverse;
+}
+
+.player-info {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 200px;
+}
+
+.player-name {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: var(--accent-gold);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 0.5px;
+}
+
+.player-score {
+    font-size: 4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    line-height: 1;
+    background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.player-stats {
+    text-align: left;
+    flex: 1;
+    max-width: 60%;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 20px;
+}
+
+.remaining-time {
+    font-size: 2rem;
+    color: var(--accent-gold);
+    margin-bottom: 15px;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.remaining-time::before {
+    content: '⏱️';
+    font-size: 1.5rem;
+}
+
+.remaining-time.warning {
+    color: #ff4757;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.7;
+        transform: scale(1.05);
+    }
+}
+
+.hit-rate,
+.break-score,
+.avg-shot-time {
+    font-size: 1.1rem;
+    margin: 8px 0;
+    color: var(--text-secondary);
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.break-score {
+    font-size: 1.4rem;
+    color: var(--accent-gold);
+    font-weight: 600;
+}
+
+.hit-rate::before {
+    content: '🎯';
+}
+
+.break-score::before {
+    content: '🏆';
+}
+
+.avg-shot-time::before {
+    content: '⏰';
+}
+
+/* 控制面板样式 */
+.control-panel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    gap: 15px;
+    z-index: 10;
+    padding: 20px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--glass-border);
+}
+
+/* 出杆按钮独立样式 - 放在底部中央 */
+.shot-button-container {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
+.control-panel button {
+    padding: 16px 28px;
+    border: none;
+    border-radius: var(--border-radius-small);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.control-panel button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.control-panel button:hover::before {
+    left: 100%;
+}
+
+.shot-button {
+    background: linear-gradient(135deg, var(--success) 0%, #45a049 100%);
+    color: white;
+    min-width: 180px;
+    padding: 20px 35px;
+    border: none;
+    border-radius: var(--border-radius-small);
+    font-size: 1.3rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+}
+
+.shot-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.shot-button:hover::before {
+    left: 100%;
+}
+
+.shot-button:hover {
+    background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
+}
+
+.shot-button.timing {
+    background: linear-gradient(135deg, var(--danger) 0%, #d32f2f 100%);
+    animation: pulse 1s infinite;
+    box-shadow: 0 6px 20px rgba(255, 87, 34, 0.4);
+}
+
+.pot-button {
+    background: linear-gradient(135deg, var(--info) 0%, #1976d2 100%);
+    color: white;
+    box-shadow: 0 4px 16px rgba(33, 150, 243, 0.3);
+}
+
+.pot-button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(33, 150, 243, 0.4);
+}
+
+.pot-button:disabled {
+    background: linear-gradient(135deg, #666 0%, #555 100%);
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+}
+
+.undo-button,
+.menu-button {
+    background: linear-gradient(135deg, var(--warning) 0%, #f57c00 100%);
+    color: white;
+    box-shadow: 0 4px 16px rgba(255, 152, 0, 0.3);
+}
+
+.undo-button:hover,
+.menu-button:hover {
+    background: linear-gradient(135deg, #f57c00 0%, #ef6c00 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(255, 152, 0, 0.4);
+}
+
+.end-match-button {
+    background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+    color: white;
+    box-shadow: 0 4px 16px rgba(233, 30, 99, 0.3);
+}
+
+.end-match-button:hover {
+    background: linear-gradient(135deg, #c2185b 0%, #ad1457 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(233, 30, 99, 0.4);
+}
+
+.history-button {
+    background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+    color: white;
+    box-shadow: 0 4px 16px rgba(156, 39, 176, 0.3);
+}
+
+.history-button:hover {
+    background: linear-gradient(135deg, #7b1fa2 0%, #6a1b9a 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(156, 39, 176, 0.4);
+}
+
+/* 视图头部样式 */
+.view-header {
+    display: flex;
+    align-items: center;
+    padding: 25px 30px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border-bottom: 2px solid var(--accent-gold);
+    box-shadow: var(--shadow-soft);
+}
+
+.back-button {
+    background: linear-gradient(135deg, #666 0%, #555 100%);
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    border-radius: var(--border-radius-small);
+    cursor: pointer;
+    margin-right: 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.back-button:hover {
+    background: linear-gradient(135deg, #555 0%, #444 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* 历史记录样式 */
+.history-list {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-gold) transparent;
+}
+
+.history-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.history-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+    background: var(--accent-gold);
+    border-radius: 3px;
+}
+
+.history-item {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    margin: 15px 0;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-soft);
+}
+
+.history-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-strong);
+    border-color: var(--accent-gold);
+}
+
+.history-date {
+    color: var(--accent-gold);
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.history-players {
+    font-size: 1.2rem;
+    margin: 8px 0;
+    font-weight: 600;
+}
+
+.history-score {
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+/* 设置页面样式 */
+.settings-content {
+    padding: 30px;
+    flex: 1;
+}
+
+.setting-item {
+    margin: 25px 0;
+}
+
+.setting-item label {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--accent-gold);
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+.setting-item input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid var(--glass-border);
+    border-radius: var(--border-radius-small);
+    font-size: 1.1rem;
+    background: var(--glass-bg);
+    color: var(--text-primary);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.setting-item input:focus {
+    outline: none;
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.new-match-button {
+    background: linear-gradient(135deg, var(--success) 0%, #45a049 100%);
+    color: white;
+    border: none;
+    padding: 18px 35px;
+    border-radius: var(--border-radius);
+    font-size: 1.3rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 30px;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.new-match-button:hover {
+    background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
+}
+
+/* 模态框样式 */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal.active {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-content {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    padding: 40px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    max-width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+    box-shadow: var(--shadow-strong);
+    border: 1px solid var(--glass-border);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.modal.active .modal-content {
+    transform: scale(1);
+}
+
+.modal-content h3 {
+    margin-bottom: 30px;
+    color: var(--accent-gold);
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.ball-buttons,
+.foul-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 15px;
+    margin: 25px 0;
+}
+
+.ball-button,
+.foul-button {
+    padding: 18px;
+    border: none;
+    border-radius: var(--border-radius-small);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.ball-button::before,
+.foul-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.ball-button:hover::before,
+.foul-button:hover::before {
+    left: 100%;
+}
+
+.ball-button:hover,
+.foul-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.ball-button.red {
+    background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+    color: white;
+}
+
+.ball-button.yellow {
+    background: linear-gradient(135deg, #f1c40f 0%, #d4ac0d 100%);
+    color: black;
+}
+
+.ball-button.green {
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    color: white;
+}
+
+.ball-button.brown {
+    background: linear-gradient(135deg, #8b4513 0%, #7d3c0c 100%);
+    color: white;
+}
+
+.ball-button.blue {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+}
+
+.ball-button.pink {
+    background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+    color: white;
+}
+
+.ball-button.black {
+    background: linear-gradient(135deg, #2c3e50 0%, #1b2631 100%);
+    color: white;
+}
+
+.ball-button.foul {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+}
+
+.foul-button {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+}
+
+.close-modal {
+    background: linear-gradient(135deg, #666 0%, #555 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--border-radius-small);
+    cursor: pointer;
+    margin-top: 25px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.close-modal:hover {
+    background: linear-gradient(135deg, #555 0%, #444 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* 球员击球记录样式 */
+.player-shot-history {
+    margin-top: 20px;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    border-radius: var(--border-radius-small);
+    padding: 15px;
+    max-height: 180px;
+    overflow-y: auto;
+    border: 1px solid var(--glass-border);
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-gold) transparent;
+}
+
+.player-shot-history::-webkit-scrollbar {
+    width: 4px;
+}
+
+.player-shot-history::-webkit-scrollbar-thumb {
+    background: var(--accent-gold);
+    border-radius: 2px;
+}
+
+.player-shot-history h4 {
+    color: var(--accent-gold);
+    margin-bottom: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+    .player-panel {
+        padding: 20px;
+    }
+
+    .player-score {
+        font-size: 3.5rem;
+    }
+
+    .control-panel {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .control-panel {
+        flex-direction: column;
+        align-items: center;
+        top: 50%;
+        padding: 15px;
+    }
+
+    .control-panel button {
+        min-width: 160px;
+        margin-bottom: 8px;
+        padding: 14px 24px;
+    }
+
+    .shot-button-container {
+        bottom: 20px;
+    }
+
+    .shot-button {
+        min-width: 160px;
+        padding: 16px 28px;
+        font-size: 1.1rem;
+    }
+
+    .player-panel {
+        flex-direction: column;
+        align-items: center;
+        margin: 10px;
+        padding: 20px;
+    }
+
+    .player-stats {
+        text-align: center;
+        max-width: 100%;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    .player-shot-history {
+        width: 100%;
+    }
+
+    .ball-buttons,
+    .foul-buttons {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .remaining-time {
+        font-size: 1.6rem;
+    }
+
+    .player-name {
+        font-size: 1.5rem;
+    }
+
+    .player-score {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        font-size: 14px;
+    }
+
+    .player-name {
+        font-size: 1.3rem;
+    }
+
+    .player-score {
+        font-size: 2.5rem;
+    }
+
+    .remaining-time {
+        font-size: 1.4rem;
+    }
+
+    .control-panel button {
+        padding: 12px 20px;
+        font-size: 1rem;
+        min-width: 140px;
+    }
+
+    .shot-button {
+        min-width: 140px;
+        padding: 14px 24px;
+        font-size: 1rem;
+    }
+
+    .modal-content {
+        padding: 25px;
+        margin: 10px;
+    }
+
+    .ball-buttons,
+    .foul-buttons {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .ball-button,
+    .foul-button {
+        padding: 15px;
+        font-size: 1rem;
+    }
+}
+
+/* 动画增强 */
+@keyframes slideInFromBottom {
+    0% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInScale {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.control-panel {
+    animation: slideInFromBottom 0.6s ease-out;
+}
+
+.shot-button-container {
+    animation: slideInFromBottom 0.6s ease-out 0.2s both;
+}
+
+.player-panel {
+    animation: fadeInScale 0.5s ease-out;
+}
+
+.player-panel:nth-child(2) {
+    animation-delay: 0.1s;
+}
