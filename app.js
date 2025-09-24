@@ -1,41 +1,118 @@
 class SnookerApp {
     constructor() {
-        // 初始化数据库，确保在加载状态前建立连接
-        this.initializeIndexedDB()
-            .then(() => {
-                // 尝试从 localStorage 恢复状态，如果没有则初始化新状态
-                this.appState = this.loadStateFromLocalStorage() || this.initializeAppState();
-                this.shotTimers = {
-                    playerA: null,
-                    playerB: null
-                };
-                this.historyStack = [];
+        // 先等待 DOM 完全加载和渲染
+        this.waitForDOM().then(() => {
+            // 初始化数据库，确保在加载状态前建立连接
+            this.initializeIndexedDB()
+                .then(() => {
+                    // 尝试从 localStorage 恢复状态，如果没有则初始化新状态
+                    this.appState = this.loadStateFromLocalStorage() || this.initializeAppState();
+                    this.shotTimers = {
+                        playerA: null,
+                        playerB: null
+                    };
+                    this.historyStack = [];
 
-                // 初始化UI后才开始恢复计时器
-                this.initializeEventListeners();
-                this.updateUI();
+                    // 初始化UI后才开始恢复计时器
+                    this.initializeEventListeners();
+                    this.updateUI();
 
-                // 安全地显示视图
+                    // 安全显示视图（确保DOM已准备好）
+                    this.safeShowView(this.appState.ui.view || 'matchView');
+
+                    // 延迟一点点再恢复计时器
+                    setTimeout(() => {
+                        // 恢复计时器状态（如果有球员正在出杆）
+                        if (this.appState.playerA.isShooting) {
+                            this.startShotTimer('playerA');
+                        }
+                        if (this.appState.playerB.isShooting) {
+                            this.startShotTimer('playerB');
+                        }
+                    }, 50);
+                })
+                .catch(error => {
+                    console.error('初始化错误：', error);
+                    // 出错时也要确保应用可用
+                    this.appState = this.initializeAppState();
+                    this.initializeEventListeners();
+                    this.updateUI();
+                    // 安全显示默认视图
+                    this.safeShowView('matchView');
+                });
+        }).catch(error => {
+            console.error('DOM加载错误:', error);
+        });
+    }
+
+    // 等待DOM完全加载和渲染的方法
+    waitForDOM() {
+        return new Promise((resolve) => {
+            // 如果DOM已经准备好了，直接解析
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                console.log('DOM已加载完成');
+                // 仍然给一些时间让浏览器渲染
+                setTimeout(resolve, 100);
+            } else {
+                // 等待DOM加载完成事件
+                document.addEventListener('DOMContentLoaded', () => {
+                    console.log('DOMContentLoaded事件触发');
+                    setTimeout(resolve, 100);
+                });
+
+                // 设置一个超时，以防DOMContentLoaded不触发
                 setTimeout(() => {
-                    // 延迟执行确保DOM已完全加载和渲染
-                    this.showView(this.appState.ui.view || 'matchView');
+                    console.log('DOM加载超时，尝试继续初始化');
+                    resolve();
+                }, 2000);
+            }
+        });
+    }
 
-                    // 恢复计时器状态（如果有球员正在出杆）
-                    if (this.appState.playerA.isShooting) {
-                        this.startShotTimer('playerA');
-                    }
-                    if (this.appState.playerB.isShooting) {
-                        this.startShotTimer('playerB');
-                    }
-                }, 0);
-            })
-            .catch(error => {
-                console.error('初始化错误：', error);
-                // 出错时也要确保应用可用
-                this.appState = this.initializeAppState();
-                this.initializeEventListeners();
-                this.updateUI();
+    // 安全显示视图的方法
+    safeShowView(viewId) {
+        try {
+            console.log(`尝试显示视图: ${viewId}`);
+
+            // 检查所有视图元素是否存在
+            let allViewsExist = true;
+            const views = ['matchView', 'historyListView', 'matchDetailView', 'settingsView'];
+
+            views.forEach(view => {
+                if (!document.getElementById(view)) {
+                    console.warn(`视图元素 '${view}' 不存在`);
+                    allViewsExist = false;
+                }
             });
+
+            if (!allViewsExist) {
+                console.error('某些视图元素不存在，可能DOM未完全加载');
+                return;
+            }
+
+            // 正常显示视图
+            this.showView(viewId);
+        } catch (error) {
+            console.error('显示视图时出错:', error);
+            // 错误恢复：尝试延迟后再显示
+            setTimeout(() => {
+                try {
+                    const fallbackViewId = 'matchView'; // 默认视图
+                    console.log(`尝试显示备用视图: ${fallbackViewId}`);
+
+                    const viewElement = document.getElementById(fallbackViewId);
+                    if (viewElement) {
+                        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                        viewElement.classList.add('active');
+                        this.appState.ui.view = fallbackViewId;
+                    } else {
+                        console.error('无法找到备用视图元素');
+                    }
+                } catch (e) {
+                    console.error('显示备用视图时出错:', e);
+                }
+            }, 500);
+        }
     }
 
     initializeAppState() {
@@ -478,29 +555,40 @@ class SnookerApp {
     }
 
     showView(viewId) {
-        // 添加安全检查，确保视图元素存在
-        const targetView = document.getElementById(viewId);
-        if (!targetView) {
-            console.error(`视图元素 '${viewId}' 不存在，回退到匹配视图`);
-            viewId = 'matchView'; // 回退到默认视图
+        try {
+            // 添加安全检查，确保视图元素存在
+            const targetView = document.getElementById(viewId);
+            if (!targetView) {
+                console.error(`视图元素 '${viewId}' 不存在，回退到匹配视图`);
+                viewId = 'matchView'; // 回退到默认视图
+            }
+
+            const views = document.querySelectorAll('.view');
+            if (views && views.length > 0) {
+                views.forEach(view => {
+                    if (view) view.classList.remove('active');
+                });
+            } else {
+                console.warn('没有找到任何视图元素');
+            }
+
+            const viewToShow = document.getElementById(viewId);
+            if (viewToShow) {
+                viewToShow.classList.add('active');
+                this.appState.ui.view = viewId;
+
+                if (viewId === 'historyListView') {
+                    this.loadHistoryList();
+                }
+
+                // 保存视图状态
+                this.saveStateToLocalStorage();
+            } else {
+                console.error(`无法找到视图元素: ${viewId}`);
+            }
+        } catch (error) {
+            console.error('切换视图时发生错误:', error);
         }
-
-        document.querySelectorAll('.view').forEach(view => {
-            view.classList.remove('active');
-        });
-
-        const viewToShow = document.getElementById(viewId);
-        if (viewToShow) {
-            viewToShow.classList.add('active');
-            this.appState.ui.view = viewId;
-        }
-
-        if (viewId === 'historyListView') {
-            this.loadHistoryList();
-        }
-
-        // 保存视图状态
-        this.saveStateToLocalStorage();
     }
 
     startNewMatch() {
@@ -764,11 +852,24 @@ class SnookerApp {
     }
 }
 
-// 初始化应用 - 确保 DOM 已完全加载
+// 初始化应用 - 放宽延迟时间，确保所有资源和DOM完全加载
 let app;
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded事件已触发');
     // 延迟初始化，确保所有DOM元素已渲染完毕
     setTimeout(() => {
+        console.log('开始初始化应用');
         app = new SnookerApp();
-    }, 10);
+    }, 200); // 增加延迟时间
 });
+
+// 备用初始化方法，以防DOMContentLoaded已经触发
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    console.log('DOM已经加载，使用备用初始化');
+    if (!app) {
+        setTimeout(() => {
+            console.log('备用方法初始化应用');
+            app = new SnookerApp();
+        }, 200);
+    }
+}
