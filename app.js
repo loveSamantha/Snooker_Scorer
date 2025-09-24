@@ -15,16 +15,19 @@ class SnookerApp {
                 this.initializeEventListeners();
                 this.updateUI();
 
-                // 立即显示正确的视图
-                this.showView(this.appState.ui.view);
+                // 安全地显示视图
+                setTimeout(() => {
+                    // 延迟执行确保DOM已完全加载和渲染
+                    this.showView(this.appState.ui.view || 'matchView');
 
-                // 恢复计时器状态（如果有球员正在出杆）
-                if (this.appState.playerA.isShooting) {
-                    this.startShotTimer('playerA');
-                }
-                if (this.appState.playerB.isShooting) {
-                    this.startShotTimer('playerB');
-                }
+                    // 恢复计时器状态（如果有球员正在出杆）
+                    if (this.appState.playerA.isShooting) {
+                        this.startShotTimer('playerA');
+                    }
+                    if (this.appState.playerB.isShooting) {
+                        this.startShotTimer('playerB');
+                    }
+                }, 0);
             })
             .catch(error => {
                 console.error('初始化错误：', error);
@@ -475,15 +478,29 @@ class SnookerApp {
     }
 
     showView(viewId) {
+        // 添加安全检查，确保视图元素存在
+        const targetView = document.getElementById(viewId);
+        if (!targetView) {
+            console.error(`视图元素 '${viewId}' 不存在，回退到匹配视图`);
+            viewId = 'matchView'; // 回退到默认视图
+        }
+
         document.querySelectorAll('.view').forEach(view => {
             view.classList.remove('active');
         });
-        document.getElementById(viewId).classList.add('active');
-        this.appState.ui.view = viewId;
+
+        const viewToShow = document.getElementById(viewId);
+        if (viewToShow) {
+            viewToShow.classList.add('active');
+            this.appState.ui.view = viewId;
+        }
 
         if (viewId === 'historyListView') {
             this.loadHistoryList();
         }
+
+        // 保存视图状态
+        this.saveStateToLocalStorage();
     }
 
     startNewMatch() {
@@ -747,8 +764,11 @@ class SnookerApp {
     }
 }
 
-// 初始化应用
+// 初始化应用 - 确保 DOM 已完全加载
 let app;
 document.addEventListener('DOMContentLoaded', () => {
-    app = new SnookerApp();
+    // 延迟初始化，确保所有DOM元素已渲染完毕
+    setTimeout(() => {
+        app = new SnookerApp();
+    }, 10);
 });
