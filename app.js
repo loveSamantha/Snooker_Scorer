@@ -15,7 +15,7 @@ class SnookerApp {
 
                     // 初始化UI后才开始恢复计时器
                     this.initializeEventListeners();
-                    this.updateUI();
+                    this.initializeUI(); // 新方法，包含 updateUI 和其他 UI 初始化
 
                     // 安全显示视图（确保DOM已准备好）
                     this.safeShowView(this.appState.ui.view || 'matchView');
@@ -208,6 +208,11 @@ class SnookerApp {
         // 历史记录按钮
         document.getElementById('historyButton').addEventListener('click', () => {
             this.showView('historyListView');
+        });
+
+        // 展开/收起控制面板按钮
+        document.getElementById('toggleControlsButton').addEventListener('click', () => {
+            this.toggleControlPanel();
         });
 
         // 添加窗口事件监听
@@ -849,6 +854,35 @@ class SnookerApp {
             // 显示历史记录
             this.showView('historyListView');
         }
+    }
+
+    // 添加控制面板展开/收起功能
+    toggleControlPanel() {
+        const controlPanel = document.querySelector('.control-panel');
+        const isCollapsed = controlPanel.classList.toggle('collapsed');
+
+        // 保存用户偏好
+        try {
+            localStorage.setItem('controlPanelCollapsed', isCollapsed ? 'true' : 'false');
+        } catch (e) {
+            console.error('无法保存控制面板状态', e);
+        }
+    }
+
+    // 在 waitForDOM Promise 解析后添加此方法调用
+    initializeUI() {
+        // 恢复控制面板状态
+        try {
+            const controlPanelCollapsed = localStorage.getItem('controlPanelCollapsed');
+            if (controlPanelCollapsed === 'true') {
+                document.querySelector('.control-panel').classList.add('collapsed');
+            }
+        } catch (e) {
+            console.error('无法恢复控制面板状态', e);
+        }
+
+        // 更新UI
+        this.updateUI();
     }
 }
 

@@ -255,14 +255,14 @@ body::before {
     left: 50%;
     transform: translate(-50%, -50%);
     display: flex;
-    gap: 15px;
     z-index: 10;
-    padding: 20px;
+    padding: 10px;
     background: var(--glass-bg);
     backdrop-filter: blur(20px);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-soft);
     border: 1px solid var(--glass-border);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 出杆按钮独立样式 - 放在底部中央 */
@@ -740,72 +740,119 @@ body::before {
     font-weight: 600;
 }
 
-/* 响应式设计 */
-@media (max-width: 1024px) {
-    .player-panel {
-        padding: 20px;
-    }
-
-    .player-score {
-        font-size: 3.5rem;
-    }
-
-    .control-panel {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
+/* 控制面板可折叠功能 */
+.control-panel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    z-index: 10;
+    padding: 10px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.toggle-controls-button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #555, #333);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 11;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border: none;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.toggle-controls-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.toggle-icon {
+    font-size: 24px;
+    transition: transform 0.3s ease;
+}
+
+.control-panel.collapsed .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.control-buttons-container {
+    display: flex;
+    gap: 15px;
+    margin-left: 15px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    max-width: 600px;
+}
+
+.control-panel.collapsed .control-buttons-container {
+    width: 0;
+    margin-left: 0;
+    opacity: 0;
+}
+
+/* 移动设备上的控制面板优化 */
 @media (max-width: 768px) {
-    .player-panel {
-        flex-direction: column;
-        align-items: center;
-        margin: 10px;
-        padding: 15px;
-    }
-
-    .player-stats {
-        text-align: center;
-        max-width: 100%;
-        width: 100%;
-        margin-top: 15px;
-    }
-
-    /* 移动设备控制面板优化 */
     .control-panel {
         position: fixed;
         bottom: 10px;
+        top: auto;
         left: 50%;
         transform: translateX(-50%);
         flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
         background: rgba(0, 0, 0, 0.7);
         border-radius: var(--border-radius);
-        width: 95%;
+        width: auto;
+        max-width: 95%;
         padding: 10px;
-        gap: 8px;
         z-index: 100;
     }
 
-    .control-panel button {
-        padding: 10px;
-        font-size: 0.9rem;
-        flex: 0 0 calc(33.33% - 8px);
-        min-width: auto;
-        margin: 0;
+    .control-buttons-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
     }
 
-    /* 调整球员区域占比 */
-    #playerA,
-    #playerB {
-        height: 45vh;
-        overflow-y: auto;
-        margin: 5px;
+    .control-panel.collapsed .control-buttons-container {
+        height: 0;
+        margin: 0;
+        padding: 0;
+    }
+
+    .control-buttons-container button {
+        padding: 10px;
+        font-size: 0.9rem;
+        min-width: auto;
+        flex: 1 1 auto;
     }
 }
 
 @media (max-width: 480px) {
+    .toggle-controls-button {
+        width: 40px;
+        height: 40px;
+    }
+
+    .toggle-icon {
+        font-size: 20px;
+    }
+
     body {
         font-size: 14px;
     }

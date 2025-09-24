@@ -3,9 +3,28 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>斯诺克比赛记录</title>
-    <link rel="stylesheet" href="styles.css">
+    <!-- 修改为相对路径 -->
+    <link rel="stylesheet" href="./styles.css">
+    <meta name="app-version" content="v1.0.0">
+    <style>
+        /* 版本徽章样式（轻量内联，便于快速识别与删除） */
+        .version-badge {
+            position: fixed;
+            bottom: 6px;
+            right: 8px;
+            padding: 2px 8px;
+            font-size: 12px;
+            background: rgba(0, 0, 0, .55);
+            color: #fff;
+            border-radius: 4px;
+            font-family: Arial, sans-serif;
+            z-index: 10000;
+            pointer-events: none;
+            user-select: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -33,11 +52,16 @@
 
             <!-- 控制面板 -->
             <div class="control-panel">
-                <button id="potButton" class="pot-button" disabled>进球</button>
-                <button id="undoButton" class="undo-button">撤回</button>
-                <button id="endMatchButton" class="end-match-button">结束比赛</button>
-                <button id="historyButton" class="history-button">历史记录</button>
-                <button id="menuButton" class="menu-button">菜单</button>
+                <button id="toggleControlsButton" class="toggle-controls-button">
+                    <span class="toggle-icon">⚙️</span>
+                </button>
+                <div id="controlButtonsContainer" class="control-buttons-container">
+                    <button id="potButton" class="pot-button" disabled>进球</button>
+                    <button id="undoButton" class="undo-button">撤回</button>
+                    <button id="endMatchButton" class="end-match-button">结束比赛</button>
+                    <button id="historyButton" class="history-button">历史记录</button>
+                    <button id="menuButton" class="menu-button">菜单</button>
+                </div>
             </div>
 
             <!-- 球员B面板 -->
@@ -138,7 +162,9 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <!-- 修改为相对路径 -->
+    <script src="./app.js"></script>
+    <div class="version-badge">版本: v1.0.0</div>
 </body>
 
 </html>
